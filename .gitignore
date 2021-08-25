@@ -1,0 +1,6 @@
+testing
+node_modules
+sqlite.log
+db.sqlite3
+coverage
+build

@@ -1,0 +1,25 @@
+{
+  "name": "genericcrud-dev",
+  "version": "1.0.0",
+  "description": "GenericCrud-dev",
+  "main": "index.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "@types/jest": "^27.0.1",
+    "jest": "^27.0.6",
+    "powersql": "git+https://github.com/isaqueks/powersql.git#release",
+    "sqlite3": "^5.0.0",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.3.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "MIT"
+}
