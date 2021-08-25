@@ -1,0 +1,14 @@
+{
+  "name": "genericcrud",
+  "version": "1.0.0",
+  "description": "NodeJS CRUD System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "isaqueks",
+  "license": "MIT",
+  "dependencies": {
+    "powersql": "git+https://github.com/isaqueks/powersql.git#release"
+  }
+}
