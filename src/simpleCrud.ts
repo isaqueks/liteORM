@@ -140,6 +140,10 @@ export default class SimpleCrud<T> extends Crud<T> {
         
         const where = this.getWhereQuery(searchKeys);
 
+        if (this._inputHandler) {
+            dataToUpdate = this._inputHandler(dataToUpdate);
+        }
+
         return await this.database.promise(
             PowerSQL(
                 PowerSQLDefaults.update(this.table),
