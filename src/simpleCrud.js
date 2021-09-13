@@ -73,8 +73,8 @@ class SimpleCrud extends Crud_1.default {
                 return null;
             }
             if (this._outputHandler) {
-                data.map((singleData) => {
-                    singleData = this._outputHandler(singleData);
+                return data.map((singleData) => {
+                    return this._outputHandler(singleData);
                 });
             }
             return data;
