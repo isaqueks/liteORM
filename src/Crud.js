@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const powersql_1 = require("powersql");
+const virtualType_1 = __importDefault(require("./virtualType"));
 class Crud {
     constructor(database, model, tableName) {
         this.database = database;
@@ -38,8 +42,20 @@ class Crud {
     // #endregion
     buildPowerSQLTable(tableName) {
         const columns = [];
-        for (let field of this.model.fields) {
-            columns.push(new powersql_1.PowerSQLTableColumn(field.name, field.sqlType, field.sqlAttributes));
+        for (const field of this.model.fields) {
+            let sqlType = field.sqlType;
+            if (typeof sqlType === 'object') {
+                const vType = sqlType;
+                // It is an object. Let's assume it's a VirtualType,
+                // but let's check first
+                if (virtualType_1.default.isVirtualType(vType)) {
+                    sqlType = vType.outputSQLType;
+                }
+                else {
+                    throw new Error(`Field type should be a plain SQL type or a VirtualType! Got "${vType}" (${typeof vType}).`);
+                }
+            }
+            columns.push(new powersql_1.PowerSQLTableColumn(field.name, sqlType, field.sqlAttributes));
         }
         return new powersql_1.PowerSQLTable(tableName, columns);
     }

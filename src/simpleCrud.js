@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const powersql_1 = require("powersql");
 const Crud_1 = __importDefault(require("./Crud"));
+const virtualType_1 = __importDefault(require("./virtualType"));
 const x = [{
         name: {
             value: 'John',
@@ -63,6 +64,38 @@ class SimpleCrud extends Crud_1.default {
         }
         return arr;
     }
+    handleOutput(dbItem) {
+        return __awaiter(this, void 0, void 0, function* () {
+            dbItem = Object.assign({}, dbItem);
+            // Do virtual type output stuff
+            for (const field of this.model.fields) {
+                if (virtualType_1.default.isVirtualType(field.sqlType)) {
+                    const vtype = field.sqlType;
+                    dbItem[field.name] = yield vtype.handleOutput(dbItem[field.name]);
+                }
+            }
+            if (this._outputHandler) {
+                dbItem = yield this._outputHandler(dbItem);
+            }
+            return dbItem;
+        });
+    }
+    handleInput(item) {
+        return __awaiter(this, void 0, void 0, function* () {
+            item = Object.assign({}, item);
+            // Do virtual type output stuff
+            for (const field of this.model.fields) {
+                if (virtualType_1.default.isVirtualType(field.sqlType)) {
+                    const vtype = field.sqlType;
+                    item[field.name] = yield vtype.handleInput(item[field.name]);
+                }
+            }
+            if (this._inputHandler) {
+                item = yield this._inputHandler(item);
+            }
+            return item;
+        });
+    }
     query(sql) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = yield this.database.promise(sql);
@@ -72,20 +105,13 @@ class SimpleCrud extends Crud_1.default {
                 }
                 return null;
             }
-            if (this._outputHandler) {
-                data.map((singleData) => {
-                    singleData = this._outputHandler(singleData);
-                });
-            }
-            return data;
+            return yield Promise.all(data.map((singleData) => this.handleOutput(singleData)));
         });
     }
     insert(data) {
         return __awaiter(this, void 0, void 0, function* () {
             data = this.removePK(data);
-            if (this._inputHandler) {
-                data = this._inputHandler(data);
-            }
+            data = yield this.handleInput(data);
             return yield this.database.promise(powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.insertInto(this.table, data)));
         });
     }
@@ -100,7 +126,11 @@ class SimpleCrud extends Crud_1.default {
     }
     update(searchKeys, dataToUpdate) {
         return __awaiter(this, void 0, void 0, function* () {
+            dataToUpdate = yield this.handleInput(dataToUpdate);
             const where = this.getWhereQuery(searchKeys);
+            if (this._inputHandler) {
+                dataToUpdate = this._inputHandler(dataToUpdate);
+            }
             return yield this.database.promise(powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.update(this.table), powersql_1.PowerSQLDefaults.set(dataToUpdate), powersql_1.PowerSQLDefaults.where(where)));
         });
     }
