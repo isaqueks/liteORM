@@ -70,8 +70,8 @@ export default abstract class Crud<T> {
      */
     public async createTableIfNotExists(): Promise<void> {
         return await this._database.promise(
-            PowerSQL(
-                PowerSQLDefaults.createTable(this._table)
+            ...PowerSQL(
+                PowerSQLDefaults.createTable(this._table, true)
             )
         );
     }

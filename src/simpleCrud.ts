@@ -1,4 +1,4 @@
-import { PowerSQL, PowerSQLDefaults } from "powersql";
+import { PowerSQL, PowerSQLDefaults, PowerSQLStatementResult } from "powersql";
 import Crud from "./Crud";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
@@ -58,8 +58,10 @@ export default class SimpleCrud<T> extends Crud<T> {
         this._outputHandler = outputHandler;
     }
 
-    private getWhereQuery(searchKeys: any, joint: string = 'AND'): string {
-        let whereConditions = [];    
+    private getWhereQuery(searchKeys: any, joint: string = 'AND'): PowerSQLStatementResult {
+        
+        const whereConditions = [];   
+        const params = []; 
 
         for (let columnName in searchKeys) {
             const columnValue = searchKeys[columnName];
@@ -69,10 +71,14 @@ export default class SimpleCrud<T> extends Crud<T> {
                 throw new Error(`Column "${columnName}" does not exists at table ${this.table.name}!`);
             }
             
-            whereConditions.push(PowerSQLDefaults.equal(column.name, PowerSQLDefaults.param(columnValue, column.type)));
+            const statement = PowerSQLDefaults.equal(
+                column.name, columnValue
+            );
+            whereConditions.push(statement[0]);
+            params.push(...statement[1]);
         }
 
-        return whereConditions.join(` ${joint} `);
+        return [ whereConditions.join(` ${joint} `), params ];
     }
 
     private removePK(data: T): T {
@@ -124,8 +130,8 @@ export default class SimpleCrud<T> extends Crud<T> {
         return item;
     }
 
-    protected async query(sql: string): Promise<T[]> {
-        const data: any[] = await this.database.promise(sql);
+    protected async query(sql: string, params?: any[]): Promise<T[]> {
+        const data: any[] = await this.database.promise(sql, params);
         if (!Array.isArray(data)) {
             if (data) {
                 throw new Error(`Invalid data received: ${JSON.stringify(data)}`);
@@ -141,7 +147,7 @@ export default class SimpleCrud<T> extends Crud<T> {
         data = this.removePK(data);
         data = await this.handleInput(data);
         return await this.database.promise(
-            PowerSQL(
+            ...PowerSQL(
                 PowerSQLDefaults.insertInto(this.table, data)
             )
         )
@@ -149,8 +155,8 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async get(searchKeys: any): Promise<T> {
         const dataArray = await this.query(
-            PowerSQL(
-                PowerSQLDefaults.selectObject(this.table, searchKeys),
+            ...PowerSQL(
+                PowerSQLDefaults.selectWhere(this.table, searchKeys),
                 'LIMIT 1'
             )
         )
@@ -170,7 +176,7 @@ export default class SimpleCrud<T> extends Crud<T> {
         }
 
         return await this.database.promise(
-            PowerSQL(
+            ...PowerSQL(
                 PowerSQLDefaults.update(this.table),
                 PowerSQLDefaults.set(dataToUpdate),
                 PowerSQLDefaults.where(where)
@@ -180,8 +186,9 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async delete(searchKeys: any): Promise<void> {
         const where = this.getWhereQuery(searchKeys);
+        
         return await this.database.promise(
-            PowerSQL(
+            ...PowerSQL(
                 'DELETE',
                 PowerSQLDefaults.from(this.table),
                 PowerSQLDefaults.where(where)
@@ -199,8 +206,8 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async getMultiple(searchKeys: any): Promise<T[]> {
         const dataArray = await this.query(
-            PowerSQL(
-                PowerSQLDefaults.selectObject(this.table, searchKeys)
+            ...PowerSQL(
+                PowerSQLDefaults.selectWhere(this.table, searchKeys)
             )
         )
         if (!dataArray) {
@@ -211,7 +218,7 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async getAll(): Promise<T[]> {
         return await this.query(
-            PowerSQL(
+            ...PowerSQL(
                 PowerSQLDefaults.select('*'),
                 PowerSQLDefaults.from(this.table)
             )
@@ -220,7 +227,8 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async deepSearch(search: SQLSearch): Promise<T[]> {
 
-        let query = []
+        const query = [];
+        const params = [];
 
         for (const term of search) {
             if (typeof term === 'string') {
@@ -234,13 +242,11 @@ export default class SimpleCrud<T> extends Crud<T> {
                     throw new Error(`Invalid field "${searchField}"!`);
                 }
                 const searchData = searchCond[searchField];
+                params.push(searchData.value);
                 query.push([
                     searchField,
                     searchData.compare,
-                    PowerSQLDefaults.param(
-                        searchData.value,
-                        field.sqlType
-                    )
+                    '?'
                 ].join(' '));
             }
             else {
@@ -248,10 +254,10 @@ export default class SimpleCrud<T> extends Crud<T> {
             }
         }
 
-        return await this.query(PowerSQL(
+        return await this.query(...PowerSQL(
             PowerSQLDefaults.select('*'),
             PowerSQLDefaults.from(this.table),
-            PowerSQLDefaults.where(query.join(' '))
+            PowerSQLDefaults.where([ query.join(' '), params ])
         ));
 
     }
