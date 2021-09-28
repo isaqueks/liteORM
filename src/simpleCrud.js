@@ -131,9 +131,6 @@ class SimpleCrud extends Crud_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             dataToUpdate = yield this.handleInput(dataToUpdate);
             const where = this.getWhereQuery(searchKeys);
-            if (this._inputHandler) {
-                dataToUpdate = this._inputHandler(dataToUpdate);
-            }
             return yield this.database.promise(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.update(this.table), powersql_1.PowerSQLDefaults.set(dataToUpdate), powersql_1.PowerSQLDefaults.where(where)));
         });
     }
