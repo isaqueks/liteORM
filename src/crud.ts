@@ -1,38 +1,44 @@
 import { PowerSQL, PowerSQLDefaults, PowerSQLTable, PowerSQLTableColumn } from "powersql";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
-import VirtualType, { VTYPE_SIGNATURE, VTYPE_SIGNATURE_PROP } from "./virtualType";
+import VirtualType from "./virtualType";
 
 export default abstract class Crud<T> {
 
-    private _model: ObjectModel;
-    private _database: DbInterface;
-    private _table: PowerSQLTable;
+    protected _model: ObjectModel;
+    protected _database: DbInterface;
+    protected _table: PowerSQLTable;
 
     // #region Getters and Setters
+
+    /**
+     * The data model
+     */
     public get model(): ObjectModel {
         return this._model;
     }
-    public set model(value: ObjectModel) {
-        this._model = value;
-    }
 
+    /**
+     * The database to store/retreive data
+     */
     public get database(): DbInterface {
         return this._database;
     }
+
     public set database(value: DbInterface) {
         this._database = value;
     }
 
+    /**
+     * The table built based on the model
+     */
     public get table(): PowerSQLTable {
         return this._table;
     }
-    public set table(value: PowerSQLTable) {
-        this._table = value;
-    }
+
     // #endregion
 
-    private buildPowerSQLTable(tableName: string): PowerSQLTable {
+    protected buildPowerSQLTable(tableName: string): PowerSQLTable {
         const columns: PowerSQLTableColumn[] = [];
         for (const field of this.model.fields) {
             let sqlType = field.sqlType;
@@ -60,9 +66,9 @@ export default abstract class Crud<T> {
     }
 
     protected constructor(database: DbInterface, model: ObjectModel, tableName: string) {
-        this.database = database;
-        this.model = model;
-        this.table = this.buildPowerSQLTable(tableName);
+        this._database = database;
+        this._model = model;
+        this._table = this.buildPowerSQLTable(tableName);
     }
 
     /**
