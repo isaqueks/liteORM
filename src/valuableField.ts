@@ -1,4 +1,5 @@
 import Field from "./field";
+import VirtualType from "./virtualType";
 
 class ValuableField extends Field {
 
@@ -12,7 +13,7 @@ class ValuableField extends Field {
         return this.value as T;
     }
 
-    constructor(name: string, sqlType: string, attributes: string[] = [], value: any = null) {
+    constructor(name: string, sqlType: string | VirtualType<any, any>, attributes: string[] = [], value: any = null) {
         super(name, sqlType, attributes);
         this.set(value);
     }
