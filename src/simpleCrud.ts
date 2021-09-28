@@ -4,8 +4,8 @@ import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
 import VirtualType from "./virtualType";
 
-export type DataInputHandler<T> = (data: T) => any;
-export type DataOutputHandler<T> = (data: any) => T;
+export type DataInputHandler<T> = (data: T) => any | Promise<any>;
+export type DataOutputHandler<T> = (data: any) => T | Promise<T>;
 
 export interface SQLSearchCondition {
     [field: string]: {
