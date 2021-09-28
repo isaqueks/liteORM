@@ -1,6 +1,7 @@
 import { PowerSQL, PowerSQLDefaults, PowerSQLTable, PowerSQLTableColumn } from "powersql";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
+import VirtualType, { VTYPE_SIGNATURE, VTYPE_SIGNATURE_PROP } from "./virtualType";
 
 export default abstract class Crud<T> {
 
@@ -33,9 +34,25 @@ export default abstract class Crud<T> {
 
     private buildPowerSQLTable(tableName: string): PowerSQLTable {
         const columns: PowerSQLTableColumn[] = [];
-        for (let field of this.model.fields) {
+        for (const field of this.model.fields) {
+            let sqlType = field.sqlType;
+            if (typeof sqlType === 'object') {
+                const vType = sqlType as VirtualType<any, any>;
+                // It is an object. Let's assume it's a VirtualType,
+                // but let's check first
+                if (VirtualType.isVirtualType(vType)) {
+                    sqlType = vType.outputSQLType;
+                }
+                else {
+                    throw new Error(`Field type should be a plain SQL type or a VirtualType! Got "${vType}" (${typeof vType}).`);
+                }
+            } 
             columns.push(
-                new PowerSQLTableColumn(field.name, field.sqlType, field.sqlAttributes)
+                new PowerSQLTableColumn(
+                    field.name, 
+                    sqlType, 
+                    field.sqlAttributes
+                )
             );
         }
 

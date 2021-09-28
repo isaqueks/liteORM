@@ -2,6 +2,7 @@ import { PowerSQL, PowerSQLDefaults } from "powersql";
 import Crud from "./Crud";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
+import VirtualType from "./virtualType";
 
 export type DataInputHandler<T> = (data: T) => any;
 export type DataOutputHandler<T> = (data: any) => T;
@@ -93,6 +94,36 @@ export default class SimpleCrud<T> extends Crud<T> {
         return arr;
     }
 
+    protected async handleOutput(dbItem: any): Promise<any> {
+        dbItem = Object.assign({}, dbItem);
+        // Do virtual type output stuff
+        for (const field of this.model.fields) {
+            if (VirtualType.isVirtualType(field.sqlType)) {
+                const vtype = field.sqlType as VirtualType<any, any>;
+                dbItem[field.name] = await vtype.handleOutput(dbItem[field.name]);
+            }
+        }
+        if (this._outputHandler) {
+            dbItem = await this._outputHandler(dbItem);
+        }
+        return dbItem;
+    }
+
+    protected async handleInput(item: T): Promise<any> {
+        item = Object.assign({}, item);
+        // Do virtual type output stuff
+        for (const field of this.model.fields) {
+            if (VirtualType.isVirtualType(field.sqlType)) {
+                const vtype = field.sqlType as VirtualType<any, any>;
+                item[field.name] = await vtype.handleInput(item[field.name]);
+            }
+        }
+        if (this._inputHandler) {
+            item = await this._inputHandler(item);
+        }
+        return item;
+    }
+
     protected async query(sql: string): Promise<T[]> {
         const data: any[] = await this.database.promise(sql);
         if (!Array.isArray(data)) {
@@ -102,20 +133,13 @@ export default class SimpleCrud<T> extends Crud<T> {
             return null;
         }
 
-        if (this._outputHandler) {
-            data.map((singleData) => {
-                singleData = this._outputHandler(singleData);
-            });
-        }
-
-        return data as T[];
+        
+        return await Promise.all(data.map((singleData) => this.handleOutput(singleData))) as T[];
     }
 
     public async insert(data: T): Promise<void> {
         data = this.removePK(data);
-        if (this._inputHandler) {
-            data = this._inputHandler(data);
-        }
+        data = await this.handleInput(data);
         return await this.database.promise(
             PowerSQL(
                 PowerSQLDefaults.insertInto(this.table, data)
@@ -138,6 +162,7 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     public async update(searchKeys: any, dataToUpdate: any): Promise<void> {
         
+        dataToUpdate = await this.handleInput(dataToUpdate);
         const where = this.getWhereQuery(searchKeys);
 
         return await this.database.promise(

@@ -1,10 +1,11 @@
+import VirtualType from "./virtualType";
 
 class Field {
     name: string;
-    sqlType: string;
+    sqlType: string | VirtualType<any, any>;
     sqlAttributes: string[];
 
-    constructor(name: string, sqlType: string, attributes: string[] = []) {
+    constructor(name: string, sqlType: string | VirtualType<any, any>, attributes: string[] = []) {
         if (!name || !sqlType) {
             throw new Error('name, sqlType required!');
             
