@@ -1,8 +1,8 @@
 import Crud from "./Crud";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
-export declare type DataInputHandler<T> = (data: T) => any;
-export declare type DataOutputHandler<T> = (data: any) => T;
+export declare type DataInputHandler<T> = (data: T) => any | Promise<any>;
+export declare type DataOutputHandler<T> = (data: any) => T | Promise<T>;
 export interface SQLSearchCondition {
     [field: string]: {
         value: any;
