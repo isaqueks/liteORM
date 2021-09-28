@@ -16,28 +16,31 @@ const powersql_1 = require("powersql");
 const virtualType_1 = __importDefault(require("./virtualType"));
 class Crud {
     constructor(database, model, tableName) {
-        this.database = database;
-        this.model = model;
-        this.table = this.buildPowerSQLTable(tableName);
+        this._database = database;
+        this._model = model;
+        this._table = this.buildPowerSQLTable(tableName);
     }
     // #region Getters and Setters
+    /**
+     * The data model
+     */
     get model() {
         return this._model;
     }
-    set model(value) {
-        this._model = value;
-    }
+    /**
+     * The database to store/retreive data
+     */
     get database() {
         return this._database;
     }
     set database(value) {
         this._database = value;
     }
+    /**
+     * The table built based on the model
+     */
     get table() {
         return this._table;
-    }
-    set table(value) {
-        this._table = value;
     }
     // #endregion
     buildPowerSQLTable(tableName) {

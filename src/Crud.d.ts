@@ -2,16 +2,23 @@ import { PowerSQLTable } from "powersql";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
 export default abstract class Crud<T> {
-    private _model;
-    private _database;
-    private _table;
+    protected _model: ObjectModel;
+    protected _database: DbInterface;
+    protected _table: PowerSQLTable;
+    /**
+     * The data model
+     */
     get model(): ObjectModel;
-    set model(value: ObjectModel);
+    /**
+     * The database to store/retreive data
+     */
     get database(): DbInterface;
     set database(value: DbInterface);
+    /**
+     * The table built based on the model
+     */
     get table(): PowerSQLTable;
-    set table(value: PowerSQLTable);
-    private buildPowerSQLTable;
+    protected buildPowerSQLTable(tableName: string): PowerSQLTable;
     protected constructor(database: DbInterface, model: ObjectModel, tableName: string);
     /**
      * Creates the table (if not exists)
