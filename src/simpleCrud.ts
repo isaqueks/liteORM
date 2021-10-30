@@ -1,5 +1,5 @@
 import { PowerSQL, PowerSQLDefaults, PowerSQLStatementResult } from "powersql";
-import Crud from "./Crud";
+import Crud from "./crud";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
 import VirtualType from "./virtualType";
