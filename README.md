@@ -126,15 +126,15 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
             return new Promise((resolve, reject) => {
                 // Most databases connection have an "all" method, 
                 // but if yours don't, change it according to your database
-				yourActualDatabase.all(query, params, (err, data) => {
+
+			    yourActualDatabase.all(query, params, (err, data) => {
 					if (err) {
                         reject(err);
                     }
 					else {
                         resolve(data);
                     }
-
-				})
+				});
 			});
         }
 
