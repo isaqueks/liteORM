@@ -122,10 +122,10 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
 
     ```ts
     const dbConnection = {
-
         promise: (query: string, params: any[]) => {
             return new Promise((resolve, reject) => {
-                // Most databases connection have an "all" method, but if yours don't, change it according to your database
+                // Most databases connection have an "all" method, 
+                // but if yours don't, change it according to your database
 				yourActualDatabase.all(query, params, (err, data) => {
 					if (err) {
                         reject(err);
