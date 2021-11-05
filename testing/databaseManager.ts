@@ -15,47 +15,26 @@ function SQLITE_LOG(query, data) {
 }
 
 export default function Database(dbFile: any) {
-	var db = new sqlLite3.Database(dbFile, (err) => {
+	const db = new sqlLite3.Database(dbFile, (err) => {
 		if (err) {
 			console.error('Could not connect to database', err);
 			return;
-		} else {
-			console.log('\n\n------< Connected to Database >------\n\n');
 		}
 	});
 	return {
-		db: db,
-		runSql: function (query: string, params?: Array<any>, callback?: Function): void {
-			SQLITE_LOG(query, params);
-			this.db.run(query, params, callback);
-		},
-		getSql: function (query: string, params?: Array<any>, callback?: Function): void {
-			SQLITE_LOG(query, params);
-			this.db.get(query, params, callback);
-		},
-		allSql: function (query: string, params?: Array<any>, callback?: Function): void {
-			SQLITE_LOG(query, params);
-			this.db.all(query, params, callback);
-		},
-		Select: function (query: string, params?: Array<any>, callback?: Function): void {
-			SQLITE_LOG('SELECT ' + query, params);
-			this.db.run('SELECT ' + query, params, callback);
-		},
-		promise: function (query: string, params?: Array<any> | any): Promise<any[]> {
-			if (params && !Array.isArray(params)) {
-				params = [params];
-			}
-			var db = this;
-			return new Promise((resolve, reject) => {
-				db.allSql(query, params, (err, data) => {
-
-					if (err)
-						reject(err);
-					else
-						resolve(data);
+        promise: (sql: string, params: any[]) => {
+            return new Promise((resolve, reject) => {
+                // Most databases connection have an "all" method, but if yours don't, change it according to your database
+				db.all(sql, params, (err, data) => {
+					if (err) {
+                        reject(err);
+                    }
+					else {
+                        resolve(data);
+                    }
 
 				})
 			});
-		}
+        }
 	}
 }
