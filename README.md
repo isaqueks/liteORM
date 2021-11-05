@@ -10,7 +10,8 @@ LiteORM is a simple, but powerful Object-Relational-Mapper for NodeJS.
  - Custom I/O handlers: You can define input and output handlers, which are functions that will be called for objects before inserting/reading from the database
 
 ## Installing:
- I will publish it to NPM soon, but for now, install it from GitHub: `npm i https://github.com/isaqueks/liteORM.git#release`
+ I will publish it to NPM soon, but for now, install it from GitHub:   
+ `npm i https://github.com/isaqueks/liteORM.git#release`
 
 ## Example usage
  For this example, I'll demonstrate how to create a simple User crud:
