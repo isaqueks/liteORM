@@ -11,7 +11,8 @@ LiteORM is a simple, but powerful Object-Relational-Mapper for NodeJS.
 
 ## Installing:
  I will publish it to NPM soon, but for now, install it from GitHub:   
- `npm i https://github.com/isaqueks/liteORM.git#release`
+ `npm i https://github.com/isaqueks/liteORM.git#release`    
+ ⚠️ Be sure to use version `2.2.0` or higher, as an SQL Injection vulnerability was fixed in this version.
 
 ## Example usage
  For this example, I'll demonstrate how to create a simple User crud:
