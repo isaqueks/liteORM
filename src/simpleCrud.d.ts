@@ -1,4 +1,4 @@
-import Crud from "./Crud";
+import Crud from "./crud";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
 export declare type DataInputHandler<T> = (data: T) => any | Promise<any>;

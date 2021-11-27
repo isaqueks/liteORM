@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VirtualTypes = exports.ObjectData = exports.ValuableField = exports.Field = exports.ObjectModel = exports.SimpleCrud = exports.Crud = void 0;
-const Crud_1 = __importDefault(require("./src/Crud"));
-exports.Crud = Crud_1.default;
+const crud_1 = __importDefault(require("./src/crud"));
+exports.Crud = crud_1.default;
 const field_1 = __importDefault(require("./src/field"));
 exports.Field = field_1.default;
-const ObjectData_1 = __importDefault(require("./src/ObjectData"));
-exports.ObjectData = ObjectData_1.default;
+const objectData_1 = __importDefault(require("./src/objectData"));
+exports.ObjectData = objectData_1.default;
 const objectModel_1 = __importDefault(require("./src/objectModel"));
 exports.ObjectModel = objectModel_1.default;
 const simpleCrud_1 = __importDefault(require("./src/simpleCrud"));

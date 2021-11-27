@@ -1,4 +1,4 @@
-import Crud from "../Crud";
+import Crud from "../crud";
 import VirtualType, { JSPrimaryType } from "../virtualType";
 export default class LinkVirtualType<T extends object> extends VirtualType<T, any> {
     private pkPropName;

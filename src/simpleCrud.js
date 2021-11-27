@@ -13,15 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const powersql_1 = require("powersql");
-const Crud_1 = __importDefault(require("./Crud"));
+const crud_1 = __importDefault(require("./crud"));
 const virtualType_1 = __importDefault(require("./virtualType"));
-const x = [{
-        name: {
-            value: 'John',
-            compare: 'LIKE',
-        },
-    }, 'AND', {}];
-class SimpleCrud extends Crud_1.default {
+class SimpleCrud extends crud_1.default {
     // #endregion
     constructor(database, model, tableName, inputHandler, outputHandler) {
         super(database, model, tableName);
@@ -96,7 +90,15 @@ class SimpleCrud extends Crud_1.default {
             if (this._inputHandler) {
                 item = yield this._inputHandler(item);
             }
-            return item;
+            // Now, let's filter the values
+            // and get only the fields defined in the model
+            const filtered = {};
+            for (const field of this.model.fields) {
+                if (Object.prototype.hasOwnProperty.call(item, field.name)) {
+                    filtered[field.name] = item[field.name];
+                }
+            }
+            return filtered;
         });
     }
     query(sql, params) {
