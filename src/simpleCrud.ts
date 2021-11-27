@@ -19,16 +19,6 @@ export type SQLBooleanComparsion = 'AND' | 'OR';
 export type SQLSearch = Array<SQLSearchCondition|SQLBooleanComparsion>;
 
 
-const x = [{
-    name: {
-        value: 'John',
-        compare: 'LIKE',
-
-    },
-}, 'AND', {
-
-}]
-
 export default class SimpleCrud<T> extends Crud<T> {
 
     private _inputHandler: DataInputHandler<T>;
@@ -127,7 +117,18 @@ export default class SimpleCrud<T> extends Crud<T> {
         if (this._inputHandler) {
             item = await this._inputHandler(item);
         }
-        return item;
+
+        // Now, let's filter the values
+        // and get only the fields defined in the model
+
+        const filtered = {};
+        for (const field of this.model.fields) {
+            if (Object.prototype.hasOwnProperty.call(item, field.name)) {
+                filtered[field.name] = item[field.name];
+            }
+        }
+
+        return filtered;
     }
 
     protected async query(sql: string, params?: any[]): Promise<T[]> {
