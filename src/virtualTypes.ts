@@ -3,7 +3,7 @@ import LinkVirtualType from "./virtualTypes/pointer";
 
 const VirtualTypes = {
     Link: LinkVirtualType,
-    Object: ObjectVirtualType
+    Object: ObjectVirtualType,
 }
 
 export default VirtualTypes;

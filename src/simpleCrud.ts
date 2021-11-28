@@ -107,15 +107,16 @@ export default class SimpleCrud<T> extends Crud<T> {
 
     protected async handleInput(item: T): Promise<any> {
         item = Object.assign({}, item);
+    
+        if (this._inputHandler) {
+            item = await this._inputHandler(item);
+        }
         // Do virtual type output stuff
         for (const field of this.model.fields) {
             if (VirtualType.isVirtualType(field.sqlType)) {
                 const vtype = field.sqlType as VirtualType<any, any>;
                 item[field.name] = await vtype.handleInput(item[field.name]);
             }
-        }
-        if (this._inputHandler) {
-            item = await this._inputHandler(item);
         }
 
         // Now, let's filter the values

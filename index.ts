@@ -15,5 +15,5 @@ export {
     ValuableField,
     ObjectData,
     DbInterface,
-    VirtualTypes    
+    VirtualTypes,
 }
