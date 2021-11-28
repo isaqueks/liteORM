@@ -7,6 +7,6 @@ const object_1 = __importDefault(require("./virtualTypes/object"));
 const pointer_1 = __importDefault(require("./virtualTypes/pointer"));
 const VirtualTypes = {
     Link: pointer_1.default,
-    Object: object_1.default
+    Object: object_1.default,
 };
 exports.default = VirtualTypes;

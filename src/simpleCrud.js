@@ -80,15 +80,15 @@ class SimpleCrud extends crud_1.default {
     handleInput(item) {
         return __awaiter(this, void 0, void 0, function* () {
             item = Object.assign({}, item);
+            if (this._inputHandler) {
+                item = yield this._inputHandler(item);
+            }
             // Do virtual type output stuff
             for (const field of this.model.fields) {
                 if (virtualType_1.default.isVirtualType(field.sqlType)) {
                     const vtype = field.sqlType;
                     item[field.name] = yield vtype.handleInput(item[field.name]);
                 }
-            }
-            if (this._inputHandler) {
-                item = yield this._inputHandler(item);
             }
             // Now, let's filter the values
             // and get only the fields defined in the model
