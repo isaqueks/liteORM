@@ -67,7 +67,7 @@ class Crud {
      */
     createTableIfNotExists() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this._database.promise(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.createTable(this._table, true)));
+            return yield this._database.promise(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.createTable(this._table, true)));
         });
     }
 }

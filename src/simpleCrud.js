@@ -117,12 +117,12 @@ class SimpleCrud extends crud_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             data = this.removePK(data);
             data = yield this.handleInput(data);
-            return yield this.database.promise(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.insertInto(this.table, data)));
+            return yield this.database.promise(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.insertInto(this.table, data)));
         });
     }
     get(searchKeys) {
         return __awaiter(this, void 0, void 0, function* () {
-            const dataArray = yield this.query(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.selectWhere(this.table, searchKeys), 'LIMIT 1'));
+            const dataArray = yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.selectWhere(this.table, searchKeys), 'LIMIT 1'));
             if (!dataArray) {
                 return null;
             }
@@ -133,13 +133,13 @@ class SimpleCrud extends crud_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             dataToUpdate = yield this.handleInput(dataToUpdate);
             const where = this.getWhereQuery(searchKeys);
-            return yield this.database.promise(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.update(this.table), powersql_1.PowerSQLDefaults.set(dataToUpdate), powersql_1.PowerSQLDefaults.where(where)));
+            return yield this.database.promise(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.update(this.table), powersql_1.PowerSQLDefaults.set(dataToUpdate), powersql_1.PowerSQLDefaults.where(where)));
         });
     }
     delete(searchKeys) {
         return __awaiter(this, void 0, void 0, function* () {
             const where = this.getWhereQuery(searchKeys);
-            return yield this.database.promise(...powersql_1.PowerSQL('DELETE', powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where(where)));
+            return yield this.database.promise(...(0, powersql_1.PowerSQL)('DELETE', powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where(where)));
         });
     }
     insertMultiple(data) {
@@ -153,7 +153,7 @@ class SimpleCrud extends crud_1.default {
     }
     getMultiple(searchKeys) {
         return __awaiter(this, void 0, void 0, function* () {
-            const dataArray = yield this.query(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.selectWhere(this.table, searchKeys)));
+            const dataArray = yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.selectWhere(this.table, searchKeys)));
             if (!dataArray) {
                 return [];
             }
@@ -162,7 +162,7 @@ class SimpleCrud extends crud_1.default {
     }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.query(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table)));
+            return yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table)));
         });
     }
     deepSearch(search) {
@@ -192,7 +192,7 @@ class SimpleCrud extends crud_1.default {
                     throw new Error(`Unknown search term: ${term}`);
                 }
             }
-            return yield this.query(...powersql_1.PowerSQL(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where([query.join(' '), params])));
+            return yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where([query.join(' '), params])));
         });
     }
 }
