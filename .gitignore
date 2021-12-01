@@ -4,4 +4,3 @@ db.sqlite3
 coverage
 build
 build-test
-package-lock.json
