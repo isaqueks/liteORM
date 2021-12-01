@@ -157,3 +157,10 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
 
 ## Which databases works with LiteORM?
  It is primarily created for `SQLite`, but should work with most SQL databases, as long as you define the correct types and attributes when creating the fields. LiteORM uses [PowerSQL](https://github.com/isaqueks/powersql) (A SQL query builder I made) for creating the queries. PowerSQL was primarily designed for SQLite too, but the final queries it generates really depends on how it's used, as it's simply a query builder. However, a compatibillity issue with other databases can exist, and if it does, report it here on GitHub issues.
+
+## Security notes:
+ 1. LiteORM itself does not do any parameter binding. It builds a query with placeholders and passes the parameters to your database library, so how the parameter binding is made, really depends on the database library you are using (which is great on most cases). This is not a problem for most databses libraries as most of them supports parameter binding very well.
+ 2. SQL identifiers (table, column names) are validated, however these values are directly concatenated to the query. If you attempt to name a table `I AM A "COOL" TABLE;`, an error will be thrown due to the bad name. 
+ 3. The `SimpleCrud` class will ignore the object `__proto__` when using methods like `insert` or `update`, so be sure to have the relevant properties defined as the object own properties. Also, properties that are not defined in the model will be ignored and not added to the query. A past (already fixed) SQL injection vulnerability was possible due to this feature bug.
+ 4. It is **always** a good practice to validate user input. So, be sure to validate all user input before doing anythin with it. You can use a JSON validator for validating objects.
+ 5. LiteORM, as any other library or system, shouldn't but MAY contain security vulnerabilities and bugs. If you find any, please report it immediately and I will fix it ASAP.
