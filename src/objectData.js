@@ -11,7 +11,7 @@ class ObjectData extends objectModel_1.default {
     }
     static from(model, data) {
         let vFields = [];
-        for (let field of model.fields) {
+        for (let field of model.getFieldArray()) {
             const value = data[field.name];
             if (value === undefined) {
                 continue;
@@ -25,7 +25,7 @@ class ObjectData extends objectModel_1.default {
         if (constructor) {
             jsObject = new constructor();
         }
-        for (let field of this.fields) {
+        for (let field of this.getFieldArray()) {
             const vField = field;
             jsObject[vField.name] = vField.get();
         }

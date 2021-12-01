@@ -1,9 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const nameCheck_1 = __importDefault(require("./nameCheck"));
 class Field {
     constructor(name, sqlType, attributes = []) {
         if (!name || !sqlType) {
             throw new Error('name, sqlType required!');
+        }
+        if (!(0, nameCheck_1.default)(name)) {
+            throw new Error(`Invalid field name! "${name}"`);
         }
         this.name = name;
         this.sqlType = sqlType;

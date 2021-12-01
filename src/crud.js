@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const powersql_1 = require("powersql");
+const nameCheck_1 = __importDefault(require("./nameCheck"));
 const virtualType_1 = __importDefault(require("./virtualType"));
 class Crud {
     constructor(database, model, tableName) {
@@ -44,8 +45,11 @@ class Crud {
     }
     // #endregion
     buildPowerSQLTable(tableName) {
+        if (!(0, nameCheck_1.default)(tableName)) {
+            throw new Error(`Invalid table name: ${tableName}`);
+        }
         const columns = [];
-        for (const field of this.model.fields) {
+        for (const field of this.model.getFieldArray()) {
             let sqlType = field.sqlType;
             if (typeof sqlType === 'object') {
                 const vType = sqlType;

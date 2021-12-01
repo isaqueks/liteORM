@@ -35,7 +35,7 @@ class SimpleCrud extends crud_1.default {
         for (let columnName in searchKeys) {
             const columnValue = searchKeys[columnName];
             const column = this.table.getColumn(columnName);
-            if (!this.table) {
+            if (!column) {
                 throw new Error(`Column "${columnName}" does not exists at table ${this.table.name}!`);
             }
             const statement = powersql_1.PowerSQLDefaults.equal(column.name, columnValue);
@@ -45,12 +45,14 @@ class SimpleCrud extends crud_1.default {
         return [whereConditions.join(` ${joint} `), params];
     }
     removePK(data) {
-        const copy = {};
-        for (const field of this.model.fields) {
-            if (field.sqlAttributes.includes('PRIMARY KEY')) {
+        const copy = new Object();
+        for (const field of this.model.getFieldArray()) {
+            if (field.sqlAttributes.includes('PRIMARY KEY') || field.sqlAttributes.includes('PRIMARY_KEY')) {
                 continue;
             }
-            copy[field.name] = data[field.name];
+            if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+                copy[field.name] = data[field.name];
+            }
         }
         return copy;
     }
@@ -65,7 +67,7 @@ class SimpleCrud extends crud_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             dbItem = Object.assign({}, dbItem);
             // Do virtual type output stuff
-            for (const field of this.model.fields) {
+            for (const field of this.model.getFieldArray()) {
                 if (virtualType_1.default.isVirtualType(field.sqlType)) {
                     const vtype = field.sqlType;
                     dbItem[field.name] = yield vtype.handleOutput(dbItem[field.name]);
@@ -77,6 +79,15 @@ class SimpleCrud extends crud_1.default {
             return dbItem;
         });
     }
+    filterColumns(data) {
+        const filtered = {};
+        for (const field of this.model.getFieldArray()) {
+            if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+                filtered[field.name] = data[field.name];
+            }
+        }
+        return filtered;
+    }
     handleInput(item) {
         return __awaiter(this, void 0, void 0, function* () {
             item = Object.assign({}, item);
@@ -84,7 +95,7 @@ class SimpleCrud extends crud_1.default {
                 item = yield this._inputHandler(item);
             }
             // Do virtual type output stuff
-            for (const field of this.model.fields) {
+            for (const field of this.model.getFieldArray()) {
                 if (virtualType_1.default.isVirtualType(field.sqlType)) {
                     const vtype = field.sqlType;
                     item[field.name] = yield vtype.handleInput(item[field.name]);
@@ -92,13 +103,7 @@ class SimpleCrud extends crud_1.default {
             }
             // Now, let's filter the values
             // and get only the fields defined in the model
-            const filtered = {};
-            for (const field of this.model.fields) {
-                if (Object.prototype.hasOwnProperty.call(item, field.name)) {
-                    filtered[field.name] = item[field.name];
-                }
-            }
-            return filtered;
+            return this.filterColumns(item);
         });
     }
     query(sql, params) {
@@ -138,7 +143,8 @@ class SimpleCrud extends crud_1.default {
     }
     delete(searchKeys) {
         return __awaiter(this, void 0, void 0, function* () {
-            const where = this.getWhereQuery(searchKeys);
+            const filtered = this.filterColumns(searchKeys);
+            const where = this.getWhereQuery(filtered);
             return yield this.database.promise(...(0, powersql_1.PowerSQL)('DELETE', powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where(where)));
         });
     }
@@ -178,7 +184,7 @@ class SimpleCrud extends crud_1.default {
                     const searchField = Object.keys(searchCond)[0];
                     const field = this.model.getField(searchField);
                     if (!field) {
-                        throw new Error(`Invalid field "${searchField}"!`);
+                        throw new Error(`Column "${searchField}" does not exists on table "${this.table.name}".!`);
                     }
                     const searchData = searchCond[searchField];
                     params.push(searchData.value);

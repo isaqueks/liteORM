@@ -21,6 +21,7 @@ export default class SimpleCrud<T> extends Crud<T> {
     private removePK;
     private removePKArray;
     protected handleOutput(dbItem: any): Promise<any>;
+    protected filterColumns(data: any): any;
     protected handleInput(item: T): Promise<any>;
     protected query(sql: string, params?: any[]): Promise<T[]>;
     insert(data: T): Promise<void>;
