@@ -1,3 +1,5 @@
+![CI](https://github.com/isaqueks/liteORM/actions/workflows/integrate.yml/badge.svg)
+
 # LiteORM
 LiteORM is a simple, but powerful Object-Relational-Mapper for NodeJS.
 
