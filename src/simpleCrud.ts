@@ -57,7 +57,7 @@ export default class SimpleCrud<T> extends Crud<T> {
             const columnValue = searchKeys[columnName];
 
             const column = this.table.getColumn(columnName);
-            if (!this.table) {
+            if (!column) {
                 throw new Error(`Column "${columnName}" does not exists at table ${this.table.name}!`);
             }
             
@@ -72,14 +72,16 @@ export default class SimpleCrud<T> extends Crud<T> {
     }
 
     private removePK(data: T): T {
-        const copy = {};
-        for (const field of this.model.fields) {
-            if (field.sqlAttributes.includes('PRIMARY KEY')) {
+        const copy = new Object();
+        for (const field of this.model.getFieldArray()) {
+            if (field.sqlAttributes.includes('PRIMARY KEY') || field.sqlAttributes.includes('PRIMARY_KEY')) {
                 continue;
             }
-            copy[field.name] = data[field.name];
+            if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+                copy[field.name] = data[field.name];
+            }
         }
-        return copy as T;
+        return copy as any;
     }
 
     private removePKArray(data: T[]): T[] {
@@ -93,7 +95,7 @@ export default class SimpleCrud<T> extends Crud<T> {
     protected async handleOutput(dbItem: any): Promise<any> {
         dbItem = Object.assign({}, dbItem);
         // Do virtual type output stuff
-        for (const field of this.model.fields) {
+        for (const field of this.model.getFieldArray()) {
             if (VirtualType.isVirtualType(field.sqlType)) {
                 const vtype = field.sqlType as VirtualType<any, any>;
                 dbItem[field.name] = await vtype.handleOutput(dbItem[field.name]);
@@ -105,14 +107,25 @@ export default class SimpleCrud<T> extends Crud<T> {
         return dbItem;
     }
 
+    protected filterColumns(data: any): any {
+        const filtered = {};
+        for (const field of this.model.getFieldArray()) {
+            if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+                filtered[field.name] = data[field.name];
+            }
+        }
+        return filtered;
+    }
+
     protected async handleInput(item: T): Promise<any> {
         item = Object.assign({}, item);
     
         if (this._inputHandler) {
             item = await this._inputHandler(item);
         }
+
         // Do virtual type output stuff
-        for (const field of this.model.fields) {
+        for (const field of this.model.getFieldArray()) {
             if (VirtualType.isVirtualType(field.sqlType)) {
                 const vtype = field.sqlType as VirtualType<any, any>;
                 item[field.name] = await vtype.handleInput(item[field.name]);
@@ -122,14 +135,7 @@ export default class SimpleCrud<T> extends Crud<T> {
         // Now, let's filter the values
         // and get only the fields defined in the model
 
-        const filtered = {};
-        for (const field of this.model.fields) {
-            if (Object.prototype.hasOwnProperty.call(item, field.name)) {
-                filtered[field.name] = item[field.name];
-            }
-        }
-
-        return filtered;
+        return this.filterColumns(item);
     }
 
     protected async query(sql: string, params?: any[]): Promise<T[]> {
@@ -146,8 +152,11 @@ export default class SimpleCrud<T> extends Crud<T> {
     }
 
     public async insert(data: T): Promise<void> {
+        
         data = this.removePK(data);
         data = await this.handleInput(data);
+
+
         return await this.database.promise(
             ...PowerSQL(
                 PowerSQLDefaults.insertInto(this.table, data)
@@ -183,7 +192,10 @@ export default class SimpleCrud<T> extends Crud<T> {
     }
 
     public async delete(searchKeys: any): Promise<void> {
-        const where = this.getWhereQuery(searchKeys);
+
+        const filtered = this.filterColumns(searchKeys);
+
+        const where = this.getWhereQuery(filtered);
         
         return await this.database.promise(
             ...PowerSQL(
@@ -237,7 +249,7 @@ export default class SimpleCrud<T> extends Crud<T> {
                 const searchField = Object.keys(searchCond)[0];
                 const field = this.model.getField(searchField);
                 if (!field) {
-                    throw new Error(`Invalid field "${searchField}"!`);
+                    throw new Error(`Column "${searchField}" does not exists on table "${this.table.name}".!`);
                 }
                 const searchData = searchCond[searchField];
                 params.push(searchData.value);

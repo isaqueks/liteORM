@@ -1,3 +1,4 @@
+import checkSQLIdentifierName from "./nameCheck";
 import VirtualType from "./virtualType";
 
 class Field {
@@ -8,8 +9,12 @@ class Field {
     constructor(name: string, sqlType: string | VirtualType<any, any>, attributes: string[] = []) {
         if (!name || !sqlType) {
             throw new Error('name, sqlType required!');
-            
         }
+
+        if (!checkSQLIdentifierName(name)) {
+            throw new Error(`Invalid field name! "${name}"`);
+        }
+
         this.name = name;
         this.sqlType = sqlType;
         if (!Array.isArray(attributes)) {

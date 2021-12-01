@@ -1,5 +1,6 @@
 import { PowerSQL, PowerSQLDefaults, PowerSQLTable, PowerSQLTableColumn } from "powersql";
 import DbInterface from "./dbInterface";
+import checkSQLIdentifierName from "./nameCheck";
 import ObjectModel from "./objectModel";
 import VirtualType from "./virtualType";
 
@@ -39,8 +40,13 @@ export default abstract class Crud<T> {
     // #endregion
 
     protected buildPowerSQLTable(tableName: string): PowerSQLTable {
+
+        if (!checkSQLIdentifierName(tableName)) {
+            throw new Error(`Invalid table name: ${tableName}`);
+        }
+
         const columns: PowerSQLTableColumn[] = [];
-        for (const field of this.model.fields) {
+        for (const field of this.model.getFieldArray()) {
             let sqlType = field.sqlType;
             if (typeof sqlType === 'object') {
                 const vType = sqlType as VirtualType<any, any>;

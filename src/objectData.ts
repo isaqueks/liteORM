@@ -12,7 +12,7 @@ class ObjectData extends ObjectModel {
     static from(model: ObjectModel, data: any): ObjectData {
 
         let vFields: ValuableField[] = [];
-        for (let field of model.fields) {
+        for (let field of model.getFieldArray()) {
             const value = data[field.name];
             if (value === undefined) {
                 continue;
@@ -31,7 +31,7 @@ class ObjectData extends ObjectModel {
         if (constructor) {
             jsObject = new constructor();
         }
-        for (let field of this.fields) {
+        for (let field of this.getFieldArray()) {
             const vField = field as ValuableField;
             jsObject[vField.name] = vField.get();
         }
