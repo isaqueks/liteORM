@@ -23,7 +23,7 @@ export default class SimpleCrud<T> extends SQLCrud<T> {
     get table(): PowerSQLTable;
     protected buildPowerSQLTable(tableName: string): PowerSQLTable;
     /**
-     * @depreceated Use setup() instead
+     * @deprecated Use setup() instead
      */
     createTableIfNotExists(): Promise<void>;
     /**
@@ -49,7 +49,7 @@ export default class SimpleCrud<T> extends SQLCrud<T> {
     getAll(): Promise<T[]>;
     search(search: SQLSearch): Promise<T[]>;
     /**
-     * @depreceated Use search() instead
+     * @deprecated Use search() instead
      * @param search The SQL search
      * @returns The search result
      */

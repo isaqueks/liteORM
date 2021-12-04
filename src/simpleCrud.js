@@ -72,7 +72,7 @@ class SimpleCrud extends sqlCrud_1.default {
         return new powersql_1.PowerSQLTable(tableName, columns);
     }
     /**
-     * @depreceated Use setup() instead
+     * @deprecated Use setup() instead
      */
     createTableIfNotExists() {
         return this.setup();
@@ -265,7 +265,7 @@ class SimpleCrud extends sqlCrud_1.default {
         });
     }
     /**
-     * @depreceated Use search() instead
+     * @deprecated Use search() instead
      * @param search The SQL search
      * @returns The search result
      */
