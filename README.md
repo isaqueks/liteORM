@@ -1,7 +1,7 @@
 ![CI](https://github.com/isaqueks/liteORM/actions/workflows/integrate.yml/badge.svg)
 
 # LiteORM
-LiteORM is a simple, but powerful Object-Relational-Mapper for NodeJS.
+LiteORM is a simple, but powerful and fast Object-Relational-Mapper for NodeJS.
 
 ## LiteORM features:
  - Fast, simple and eazy to use/setup
@@ -58,7 +58,7 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
  1. Creating the table:
 
     ```ts
-    userCrud.createTableIfNotExists();
+    userCrud.setup();
     ```
 
 2. Inserting data:
@@ -104,7 +104,7 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
     Let's suppose we want to fetch users whose name is like `John` and age is higher than 18:
 
     ```ts
-    const searchResult = await userCrud.deepSearch([
+    const searchResult = await userCrud.search([
         {
             name: {
                 value: '%John%',
@@ -119,7 +119,9 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
         }
     ]);
     ```
-    I will provide more details about it in the technical documentation.
+    I will provide more details about it in the technical documentation.  
+    ⚠️ Parameter binding is used with `value`, however `compare` values 
+    will be directly concatenated into the query.
 
  7. Creating a database wrapper:
     As I mentioned before, the first argument `SimpleCrud` constructor requires is a database connection object. This object needs to have a specific `promise` method, which is very likely to not match the connection object you are using. In this case, you need to create a database conection wrapper object, like this:
@@ -155,7 +157,11 @@ All the required setup is done, now I will show how to use `LiteORM` for inserti
 ## Should I use LiteORM?
  LiteORM was created by me for me. I created LiteORM because I didn't want to manually type the SQL queries and mix SQL with TypeScript. Idk why I didn't used an existing ORM, but here it is.
  It doesn't mean you can't use. It means it solves my problems.   
- I don't recommend using LiteORM, or at least `SimpleCrud` for very large databases and database-intensive applications. You can customize and create your own `ORM` logic by extendind `Crud` the class.
+ LiteORM isn't very mature, however it's faster and simpler than most ORMs.  
+ **But should I used it or not?**  
+ I encourage you to test it and compare with other ORMs. If it fit's and solve your
+ project's needs, off course, use it.
+
 
 ## Which databases works with LiteORM?
  It is primarily created for `SQLite`, but should work with most SQL databases, as long as you define the correct types and attributes when creating the fields. LiteORM uses [PowerSQL](https://github.com/isaqueks/powersql) (A SQL query builder I made) for creating the queries. PowerSQL was primarily designed for SQLite too, but the final queries it generates really depends on how it's used, as it's simply a query builder. However, a compatibillity issue with other databases can exist, and if it does, report it here on GitHub issues.
