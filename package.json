@@ -1,6 +1,6 @@
 {
   "name": "liteorm-dev",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "liteorm-dev",
   "main": "index.ts",
   "directories": {

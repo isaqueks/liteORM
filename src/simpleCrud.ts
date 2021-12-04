@@ -76,7 +76,7 @@ export default class SimpleCrud<T> extends SQLCrud<T> {
         return new PowerSQLTable(tableName, columns);
     }
     /**
-     * @depreceated Use setup() instead
+     * @deprecated Use setup() instead
      */
     public createTableIfNotExists(): Promise<void> {
         return this.setup();
@@ -346,7 +346,7 @@ export default class SimpleCrud<T> extends SQLCrud<T> {
 
 
     /**
-     * @depreceated Use search() instead
+     * @deprecated Use search() instead
      * @param search The SQL search
      * @returns The search result
      */

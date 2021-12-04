@@ -44,7 +44,7 @@ const mary: User = {
 
 test('SimpleCrud', async () => {
 
-    await crud.createTableIfNotExists();
+    await crud.setup();
 
     await crud.insert(john);
 
@@ -103,7 +103,7 @@ test('SimpleCrud', async () => {
     await crud.update({ id: 1 }, { age: 45 })
 
 
-    const deepSearch = await crud.deepSearch([
+    const deepSearch = await crud.search([
         {
             age: {
                 value: 35,
