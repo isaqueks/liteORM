@@ -1,28 +1,97 @@
-import { PowerSQL, PowerSQLDefaults, PowerSQLStatementResult } from "powersql";
-import Crud from "./crud";
+import { PowerSQL, PowerSQLDefaults, PowerSQLStatementResult, PowerSQLTable, PowerSQLTableColumn } from "powersql";
 import DbInterface from "./dbInterface";
+import checkSQLIdentifierName from "./nameCheck";
 import ObjectModel from "./objectModel";
+import SQLCrud, { DataInputHandler, DataOutputHandler, SQLSearch, SQLSearchCondition } from "./sqlCrud";
 import VirtualType from "./virtualType";
 
-export type DataInputHandler<T> = (data: T) => any | Promise<any>;
-export type DataOutputHandler<T> = (data: any) => T | Promise<T>;
 
-export interface SQLSearchCondition {
-    [field: string]: {
-        value: any;
-        compare: string;
-    }
-}
-
-
-export type SQLBooleanComparsion = 'AND' | 'OR';
-export type SQLSearch = Array<SQLSearchCondition|SQLBooleanComparsion>;
-
-
-export default class SimpleCrud<T> extends Crud<T> {
+export default class SimpleCrud<T> extends SQLCrud<T> {
 
     private _inputHandler: DataInputHandler<T>;
     private _outputHandler: DataOutputHandler<T>;
+
+    protected _model: ObjectModel;
+    protected _database: DbInterface;
+    protected _table: PowerSQLTable;
+
+    // #region Getters and Setters
+
+    /**
+     * The data model
+     */
+    public get model(): ObjectModel {
+        return this._model;
+    }
+
+    /**
+     * The database to store/retreive data
+     */
+    public get database(): DbInterface {
+        return this._database;
+    }
+
+    public set database(value: DbInterface) {
+        this._database = value;
+    }
+
+    /**
+     * The table built based on the model
+     */
+    public get table(): PowerSQLTable {
+        return this._table;
+    }
+
+    // #endregion
+
+    protected buildPowerSQLTable(tableName: string): PowerSQLTable {
+
+        if (!checkSQLIdentifierName(tableName)) {
+            throw new Error(`Invalid table name: ${tableName}`);
+        }
+
+        const columns: PowerSQLTableColumn[] = [];
+        for (const field of this.model.getFieldArray()) {
+            let sqlType = field.sqlType;
+            if (typeof sqlType === 'object') {
+                const vType = sqlType as VirtualType<any, any>;
+                // It is an object. Let's assume it's a VirtualType,
+                // but let's check first= {k: v for k, v in sorted(idAccess.items(), key=lambda item: -
+                if (VirtualType.isVirtualType(vType)) {
+                    sqlType = vType.outputSQLType;
+                }
+                else {
+                    throw new Error(`Field type should be a plain SQL type or a VirtualType! Got "${vType}" (${typeof vType}).`);
+                }
+            } 
+            columns.push(
+                new PowerSQLTableColumn(
+                    field.name, 
+                    sqlType, 
+                    field.sqlAttributes
+                )
+            );
+        }
+
+        return new PowerSQLTable(tableName, columns);
+    }
+    /**
+     * @depreceated Use setup() instead
+     */
+    public createTableIfNotExists(): Promise<void> {
+        return this.setup();
+    }
+
+    /**
+     * Creates the table
+     */
+    public async setup(): Promise<void> {
+        return await this._database.promise(
+            ...PowerSQL(
+                PowerSQLDefaults.createTable(this._table, true)
+            )
+        );
+    }
 
     // #region Getters
 
@@ -43,7 +112,10 @@ export default class SimpleCrud<T> extends Crud<T> {
         inputHandler?: DataInputHandler<T>,
         outputHandler?: DataOutputHandler<T>
     ) {
-        super(database, model, tableName);
+        super();
+        this._database = database;
+        this._model = model;
+        this._table = this.buildPowerSQLTable(tableName);
         this._inputHandler = inputHandler;
         this._outputHandler = outputHandler;
     }
@@ -235,7 +307,7 @@ export default class SimpleCrud<T> extends Crud<T> {
         );
     }
 
-    public async deepSearch(search: SQLSearch): Promise<T[]> {
+    public async search(search: SQLSearch): Promise<T[]> {
 
         const query = [];
         const params = [];
@@ -270,6 +342,16 @@ export default class SimpleCrud<T> extends Crud<T> {
             PowerSQLDefaults.where([ query.join(' '), params ])
         ));
 
+    }
+
+
+    /**
+     * @depreceated Use search() instead
+     * @param search The SQL search
+     * @returns The search result
+     */
+    public deepSearch(search: SQLSearch): Promise<T[]> { 
+        return this.search(search);
     }
 
 
