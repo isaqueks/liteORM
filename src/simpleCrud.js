@@ -13,14 +13,77 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const powersql_1 = require("powersql");
-const crud_1 = __importDefault(require("./crud"));
+const nameCheck_1 = __importDefault(require("./nameCheck"));
+const sqlCrud_1 = __importDefault(require("./sqlCrud"));
 const virtualType_1 = __importDefault(require("./virtualType"));
-class SimpleCrud extends crud_1.default {
+class SimpleCrud extends sqlCrud_1.default {
     // #endregion
     constructor(database, model, tableName, inputHandler, outputHandler) {
-        super(database, model, tableName);
+        super();
+        this._database = database;
+        this._model = model;
+        this._table = this.buildPowerSQLTable(tableName);
         this._inputHandler = inputHandler;
         this._outputHandler = outputHandler;
+    }
+    // #region Getters and Setters
+    /**
+     * The data model
+     */
+    get model() {
+        return this._model;
+    }
+    /**
+     * The database to store/retreive data
+     */
+    get database() {
+        return this._database;
+    }
+    set database(value) {
+        this._database = value;
+    }
+    /**
+     * The table built based on the model
+     */
+    get table() {
+        return this._table;
+    }
+    // #endregion
+    buildPowerSQLTable(tableName) {
+        if (!(0, nameCheck_1.default)(tableName)) {
+            throw new Error(`Invalid table name: ${tableName}`);
+        }
+        const columns = [];
+        for (const field of this.model.getFieldArray()) {
+            let sqlType = field.sqlType;
+            if (typeof sqlType === 'object') {
+                const vType = sqlType;
+                // It is an object. Let's assume it's a VirtualType,
+                // but let's check first= {k: v for k, v in sorted(idAccess.items(), key=lambda item: -
+                if (virtualType_1.default.isVirtualType(vType)) {
+                    sqlType = vType.outputSQLType;
+                }
+                else {
+                    throw new Error(`Field type should be a plain SQL type or a VirtualType! Got "${vType}" (${typeof vType}).`);
+                }
+            }
+            columns.push(new powersql_1.PowerSQLTableColumn(field.name, sqlType, field.sqlAttributes));
+        }
+        return new powersql_1.PowerSQLTable(tableName, columns);
+    }
+    /**
+     * @depreceated Use setup() instead
+     */
+    createTableIfNotExists() {
+        return this.setup();
+    }
+    /**
+     * Creates the table
+     */
+    setup() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._database.promise(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.createTable(this._table, true)));
+        });
     }
     // #region Getters
     get inputHandler() {
@@ -171,7 +234,7 @@ class SimpleCrud extends crud_1.default {
             return yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table)));
         });
     }
-    deepSearch(search) {
+    search(search) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = [];
             const params = [];
@@ -200,6 +263,14 @@ class SimpleCrud extends crud_1.default {
             }
             return yield this.query(...(0, powersql_1.PowerSQL)(powersql_1.PowerSQLDefaults.select('*'), powersql_1.PowerSQLDefaults.from(this.table), powersql_1.PowerSQLDefaults.where([query.join(' '), params])));
         });
+    }
+    /**
+     * @depreceated Use search() instead
+     * @param search The SQL search
+     * @returns The search result
+     */
+    deepSearch(search) {
+        return this.search(search);
     }
 }
 exports.default = SimpleCrud;

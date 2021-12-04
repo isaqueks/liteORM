@@ -1,34 +1,14 @@
-import { PowerSQLTable } from "powersql";
-import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
 export default abstract class Crud<T> {
-    protected _model: ObjectModel;
-    protected _database: DbInterface;
-    protected _table: PowerSQLTable;
     /**
      * The data model
      */
-    get model(): ObjectModel;
+    abstract get model(): ObjectModel;
     /**
-     * The database to store/retreive data
+     * Initialize the repository. For example,
+     * creates the table on SQL based CRUDs.
      */
-    get database(): DbInterface;
-    set database(value: DbInterface);
-    /**
-     * The table built based on the model
-     */
-    get table(): PowerSQLTable;
-    protected buildPowerSQLTable(tableName: string): PowerSQLTable;
-    protected constructor(database: DbInterface, model: ObjectModel, tableName: string);
-    /**
-     * Creates the table (if not exists)
-     */
-    createTableIfNotExists(): Promise<void>;
-    /**
-     * Query the database and returns the output
-     * @param sql The SQL query
-     */
-    protected abstract query(sql: string): Promise<T[]>;
+    abstract setup(): Promise<void>;
     /**
      * Inserts data to the database
      * @param data The data to insert

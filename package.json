@@ -1,6 +1,6 @@
 {
   "name": "genericcrud",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "NodeJS CRUD System",
   "main": "index.js",
   "scripts": {

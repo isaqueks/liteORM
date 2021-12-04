@@ -1,19 +1,35 @@
-import Crud from "./crud";
+import { PowerSQLTable } from "powersql";
 import DbInterface from "./dbInterface";
 import ObjectModel from "./objectModel";
-export declare type DataInputHandler<T> = (data: T) => any | Promise<any>;
-export declare type DataOutputHandler<T> = (data: any) => T | Promise<T>;
-export interface SQLSearchCondition {
-    [field: string]: {
-        value: any;
-        compare: string;
-    };
-}
-export declare type SQLBooleanComparsion = 'AND' | 'OR';
-export declare type SQLSearch = Array<SQLSearchCondition | SQLBooleanComparsion>;
-export default class SimpleCrud<T> extends Crud<T> {
+import SQLCrud, { DataInputHandler, DataOutputHandler, SQLSearch } from "./sqlCrud";
+export default class SimpleCrud<T> extends SQLCrud<T> {
     private _inputHandler;
     private _outputHandler;
+    protected _model: ObjectModel;
+    protected _database: DbInterface;
+    protected _table: PowerSQLTable;
+    /**
+     * The data model
+     */
+    get model(): ObjectModel;
+    /**
+     * The database to store/retreive data
+     */
+    get database(): DbInterface;
+    set database(value: DbInterface);
+    /**
+     * The table built based on the model
+     */
+    get table(): PowerSQLTable;
+    protected buildPowerSQLTable(tableName: string): PowerSQLTable;
+    /**
+     * @depreceated Use setup() instead
+     */
+    createTableIfNotExists(): Promise<void>;
+    /**
+     * Creates the table
+     */
+    setup(): Promise<void>;
     get inputHandler(): DataInputHandler<T>;
     get outputHandler(): DataOutputHandler<T>;
     constructor(database: DbInterface, model: ObjectModel, tableName: string, inputHandler?: DataInputHandler<T>, outputHandler?: DataOutputHandler<T>);
@@ -31,5 +47,11 @@ export default class SimpleCrud<T> extends Crud<T> {
     insertMultiple(data: T[]): Promise<void>;
     getMultiple(searchKeys: any): Promise<T[]>;
     getAll(): Promise<T[]>;
+    search(search: SQLSearch): Promise<T[]>;
+    /**
+     * @depreceated Use search() instead
+     * @param search The SQL search
+     * @returns The search result
+     */
     deepSearch(search: SQLSearch): Promise<T[]>;
 }
