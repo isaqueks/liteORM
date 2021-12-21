@@ -23,6 +23,9 @@ class VirtualType {
         return this._inputJSType;
     }
     checkType(data, expectedType) {
+        if (expectedType === 'any') {
+            return;
+        }
         if (typeof data !== expectedType) {
             throw new Error(`Error! Data type should be "${expectedType}". Got "${typeof data}" (${String(data)}).`);
         }

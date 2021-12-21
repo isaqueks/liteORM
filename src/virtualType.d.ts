@@ -1,14 +1,14 @@
-export declare type JSPrimaryType = 'number' | 'string' | 'bigint' | 'boolean';
 export declare const VTYPE_SIGNATURE = "IS_A_VTYPE";
 export declare const VTYPE_SIGNATURE_PROP = "__vtype_signature";
-export default abstract class VirtualType<I, O extends number | string | bigint | boolean> {
+export declare type JSType = 'string' | 'number' | 'boolean' | 'object' | 'function' | 'symbol' | 'undefined' | 'any';
+export default abstract class VirtualType<I, O> {
     static isVirtualType(runtimeObject: any): boolean;
     protected _outputSQLType: string;
-    protected _outputJSType: JSPrimaryType;
+    protected _outputJSType: string;
     protected _inputJSType: string;
-    constructor(outSQLType: string, outJSType: JSPrimaryType, inputJSType: string);
+    constructor(outSQLType: string, outJSType: string, inputJSType: string);
     get outputSQLType(): string;
-    get outputJSType(): JSPrimaryType;
+    get outputJSType(): string;
     get inputJSType(): string;
     /**
      * Transforms input item (JS Object) to an output database item
