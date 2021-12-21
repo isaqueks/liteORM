@@ -1,16 +1,16 @@
 import Crud from "../crud";
-import VirtualType, { JSPrimaryType } from "../virtualType";
+import VirtualType, { JSType } from "../virtualType";
 
 export default class LinkVirtualType<T extends object> extends VirtualType<T, any> {
 
     private pkPropName: string;
-    private pkType: JSPrimaryType;
+    private pkType: JSType;
     private foreignCrud: Crud<T>;
 
     constructor(
         pkPropName: string = 'id',
         pkSQLType: string = 'INTEGER',
-        pkJSType: JSPrimaryType = 'number',
+        pkJSType: JSType = 'number',
         foreignCrud: Crud<T>
     ) {
         super(pkSQLType, pkJSType, 'object');

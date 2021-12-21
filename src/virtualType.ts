@@ -1,19 +1,19 @@
-export type JSPrimaryType = 'number' | 'string' | 'bigint' | 'boolean';
-
 export const VTYPE_SIGNATURE = 'IS_A_VTYPE';
 export const VTYPE_SIGNATURE_PROP = '__vtype_signature';
 
-export default abstract class VirtualType<I, O extends number | string | bigint | boolean> {
+export type JSType = 'string' | 'number' | 'boolean' | 'object' | 'function' | 'symbol' | 'undefined' | 'any';
+
+export default abstract class VirtualType<I, O> {
 
     public static isVirtualType(runtimeObject: any) {
         return runtimeObject && typeof runtimeObject === 'object' && runtimeObject[VTYPE_SIGNATURE_PROP] === VTYPE_SIGNATURE;
     }
 
     protected _outputSQLType: string;
-    protected _outputJSType: JSPrimaryType;
+    protected _outputJSType: string;
     protected _inputJSType: string;
 
-    constructor(outSQLType: string, outJSType: JSPrimaryType, inputJSType: string) {
+    constructor(outSQLType: string, outJSType: string, inputJSType: string) {
         this._outputSQLType = outSQLType;
         this._outputJSType = outJSType;
         this._inputJSType = inputJSType;
@@ -46,6 +46,9 @@ export default abstract class VirtualType<I, O extends number | string | bigint 
 
 
     private checkType(data, expectedType: string) {
+        if (expectedType === 'any') {
+            return;
+        }
         if (typeof data !== expectedType) {
             throw new Error(`Error! Data type should be "${expectedType}". Got "${typeof data}" (${String(data)}).`);
         }
